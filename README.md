@@ -49,8 +49,8 @@ Para ejecutar el proyecto localmente, necesitas:
     
     Abre el archivo `src/main/resources/application.properties` y verifica que tus credenciales coincidan:
     ```properties
-    spring.datasource.username=root
-    spring.datasource.password=root
+    spring.datasource.username=
+    spring.datasource.password=
     ```
 
 2.  **Configurar Servidor de Correo (Para el Módulo de Avisos):**
