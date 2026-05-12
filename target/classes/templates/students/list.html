@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Alumnos - Control Escolar')}"></head>
+<body class="bg-gray-50 min-h-screen text-gray-800 font-sans antialiased">
+    
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Gestión de Alumnos</h1>
+                <p class="mt-2 text-lg text-gray-600">Consulta el directorio y registra nuevos estudiantes.</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <a th:href="@{/students/register}" class="bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-transform transform hover:-translate-y-1 flex items-center">
+                    <i class="fa-solid fa-plus mr-2"></i> Registrar Nuevo Alumno
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+            <div class="p-6 border-b border-gray-100 bg-gray-50">
+                <form th:action="@{/students}" method="get" class="flex items-center w-full max-w-lg">
+                    <div class="relative w-full">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fa-solid fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" name="search" th:value="${search}" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-brand-500 focus:border-brand-500 block w-full pl-10 p-3 shadow-sm" placeholder="Buscar por nombre, apellido o grupo...">
+                    </div>
+                    <button type="submit" class="p-3 ml-2 text-sm font-medium text-white bg-brand-600 rounded-xl hover:bg-brand-700 focus:ring-4 focus:outline-none focus:ring-brand-300 shadow-sm transition-colors">
+                        Buscar
+                    </button>
+                    <a th:href="@{/students}" th:if="${search != null}" class="p-3 ml-2 text-sm font-medium text-gray-600 bg-gray-200 rounded-xl hover:bg-gray-300 shadow-sm transition-colors" title="Limpiar búsqueda">
+                        <i class="fa-solid fa-times"></i>
+                    </a>
+                </form>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 rounded-tl-xl">Alumno</th>
+                            <th scope="col" class="px-6 py-4">Grupo</th>
+                            <th scope="col" class="px-6 py-4">Tutores Asignados</th>
+                            <th scope="col" class="px-6 py-4 text-center rounded-tr-xl">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="student : ${students}" class="bg-white border-b hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold text-lg mr-3 shadow-sm">
+                                    <span th:text="${#strings.substring(student.firstName,0,1)}"></span>
+                                </div>
+                                <div>
+                                    <div class="text-base font-semibold" th:text="${student.firstName + ' ' + student.lastName}"></div>
+                                    <div class="font-normal text-gray-500 text-xs">ID: <span th:text="${student.id}"></span></div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full" th:text="${student.groupName ?: 'Sin Asignar'}"></span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex -space-x-2 overflow-hidden">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 ring-2 ring-white font-medium text-gray-600 text-xs" th:text="${#lists.size(student.tutors)}"></span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 flex justify-center items-center space-x-3">
+                                <a th:href="@{/students/edit/{id}(id=${student.id})}" class="text-brand-600 hover:text-brand-900 transition-colors" title="Actualizar datos">
+                                    <i class="fa-solid fa-pen-to-square text-lg"></i>
+                                </a>
+                                <a th:href="@{/students/{id}/tutors/add(id=${student.id})}" class="text-green-600 hover:text-green-900 transition-colors" title="Agregar tutor">
+                                    <i class="fa-solid fa-user-plus text-lg"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(students)}">
+                            <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                                <i class="fa-solid fa-folder-open text-4xl text-gray-300 mb-3"></i>
+                                <p class="text-lg">No se encontraron alumnos</p>
+                                <p class="text-sm">Intenta con otro término de búsqueda o registra un nuevo alumno.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var registroExitoso = /*[[${registroExitoso}]]*/ false;
+        var newTutorId = /*[[${newTutorId}]]*/ null;
+        if (registroExitoso) {
+            // Lanza serpentinas/confetti
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#22c55e', '#16a34a', '#15803d', '#ffffff']
+            });
+
+            // Muestra la alerta de éxito
+            Swal.fire({
+                title: '¡Registro Exitoso!',
+                text: 'El alumno y tutor han sido registrados correctamente.',
+                icon: 'success',
+                confirmButtonText: 'Ver Credencial',
+                confirmButtonColor: '#16a34a'
+            }).then((result) => {
+                if (newTutorId) {
+                    window.open('/credentials/pdf/' + newTutorId, '_blank');
+                }
+            });
+        }
+        /*]]>*/
+    </script>
+</body>
+</html>

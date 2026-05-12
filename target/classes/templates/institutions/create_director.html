@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Registrar Director - Control Escolar')}"></head>
+<body class="bg-gray-50 min-h-screen">
+    
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Registrar Director</h1>
+                <p class="mt-2 text-sm text-gray-600">Crear cuenta de acceso para el administrador de <span class="font-bold text-brand-600" th:text="${institution.name}"></span>.</p>
+            </div>
+            <a th:href="@{/institutions}" class="text-gray-500 hover:text-gray-700">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Volver
+            </a>
+        </div>
+
+        <div th:if="${errorMessage}" class="mb-6 bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 flex items-center">
+            <i class="fa-solid fa-circle-xmark text-red-500 mr-3 text-lg"></i>
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <div class="bg-white shadow-sm rounded-2xl p-8 border border-gray-100">
+            <form th:action="@{/institutions/{id}/directors/create(id=${institution.id})}" method="post" class="space-y-6">
+                
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium text-gray-700">Nombre(s) <span class="text-red-500">*</span></label>
+                        <input type="text" name="firstName" id="firstName" required class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 sm:text-sm px-4 py-2 border">
+                    </div>
+
+                    <div>
+                        <label for="lastName" class="block text-sm font-medium text-gray-700">Apellidos <span class="text-red-500">*</span></label>
+                        <input type="text" name="lastName" id="lastName" required class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 sm:text-sm px-4 py-2 border">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700">Nombre de Usuario <span class="text-red-500">*</span></label>
+                    <input type="text" name="username" id="username" required class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 sm:text-sm px-4 py-2 border">
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Contraseña <span class="text-red-500">*</span></label>
+                    <input type="password" name="password" id="password" required class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 sm:text-sm px-4 py-2 border">
+                </div>
+
+                <div class="pt-5 border-t border-gray-200">
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors">
+                        <i class="fa-solid fa-save mr-2 mt-0.5"></i> Crear Director
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+    </main>
+
+</body>
+</html>

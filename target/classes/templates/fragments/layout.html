@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Control Escolar</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for colorful icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Optional: Tailwind Configuration for custom colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800 font-sans antialiased">
+    
+    <!-- Navbar Fragment -->
+    <nav th:fragment="navbar" class="bg-white shadow-md border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-school text-brand-600 text-3xl mr-3"></i>
+                    <a th:href="@{/dashboard}" class="text-2xl font-bold text-gray-800 tracking-tight">Control<span class="text-brand-600">Escolar</span></a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a th:href="@{/students}" class="text-gray-600 hover:text-brand-600 transition duration-150"><i class="fa-solid fa-users mr-1"></i> Alumnos</a>
+                    <a th:href="@{/scanner}" class="text-gray-600 hover:text-brand-600 transition duration-150"><i class="fa-solid fa-qrcode mr-1"></i> Escáner</a>
+                    <a th:href="@{/announcements}" class="text-gray-600 hover:text-brand-600 transition duration-150"><i class="fa-solid fa-bullhorn mr-1"></i> Avisos</a>
+                    <a th:href="@{/reports}" class="text-gray-600 hover:text-brand-600 transition duration-150"><i class="fa-solid fa-chart-bar mr-1"></i> Reportes</a>
+                    <a sec:authorize="hasRole('ROOT')" th:href="@{/institutions}" class="text-gray-600 hover:text-brand-600 transition duration-150"><i class="fa-solid fa-building mr-1"></i> Instituciones</a>
+                    <form th:action="@{/logout}" method="post" class="inline">
+                        <button type="submit" class="text-red-500 hover:text-red-700 transition duration-150">
+                            <i class="fa-solid fa-sign-out-alt"></i> Salir
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+</body>
+</html>

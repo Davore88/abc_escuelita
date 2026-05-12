@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Registrar Alumno - Control Escolar')}"></head>
+<body class="bg-gray-50 min-h-screen text-gray-800 font-sans antialiased">
+    
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        
+        <div class="mb-8">
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Registro de Nuevo Ingreso</h1>
+            <p class="mt-2 text-lg text-gray-600">Completa el proceso de registro en dos sencillos pasos.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <!-- Progress Bar -->
+            <div class="bg-gray-50 border-b border-gray-100 px-8 py-6">
+                <div class="flex items-center justify-between relative">
+                    <!-- Progress Line -->
+                    <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200 rounded-full z-0"></div>
+                    <div id="progress-line" class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1/2 h-1 bg-brand-500 rounded-full z-0 transition-all duration-500 ease-in-out"></div>
+                    
+                    <!-- Step 1 Indicator -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div id="step1-circle" class="w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold shadow-md transition-colors duration-300">
+                            1
+                        </div>
+                        <span class="mt-2 text-sm font-semibold text-brand-700">Datos del Alumno</span>
+                    </div>
+
+                    <!-- Step 2 Indicator -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div id="step2-circle" class="w-10 h-10 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold shadow-md transition-colors duration-300">
+                            2
+                        </div>
+                        <span id="step2-text" class="mt-2 text-sm font-medium text-gray-500">Datos del Tutor</span>
+                    </div>
+                </div>
+            </div>
+
+            <form th:action="@{/students/register}" method="post" enctype="multipart/form-data" class="p-8" id="registrationForm">
+                
+                <!-- STEP 1: Student Information -->
+                <div id="step1-container" class="space-y-6 transition-opacity duration-500">
+                    <h2 class="text-xl font-bold text-gray-800 border-b pb-2"><i class="fa-solid fa-user-graduate text-brand-500 mr-2"></i>Información del Alumno</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre(s) *</label>
+                            <input type="text" name="studentFirstName" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500" placeholder="Ej. Juan Pérez">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Apellidos *</label>
+                            <input type="text" name="studentLastName" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500" placeholder="Ej. López Gómez">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Grupo asignado</label>
+                            <input type="text" name="studentGroup" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500" placeholder="Ej. 1A">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Fotografía (Opcional)</label>
+                            <div class="flex gap-2">
+                                <label id="studentPhotoLabel" class="flex-grow flex flex-col items-center justify-center h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 overflow-hidden relative">
+                                    <div id="studentPhotoPlaceholder" class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
+                                        <p class="text-sm text-gray-500 font-medium">Subir foto</p>
+                                    </div>
+                                    <img id="studentPhotoPreview" class="hidden absolute inset-0 w-full h-full object-cover" />
+                                    <input type="file" name="studentPhoto" id="studentPhoto" class="hidden" accept="image/*" onchange="previewImage(this, 'studentPhotoPreview', 'studentPhotoPlaceholder')" />
+                                </label>
+                                <button type="button" onclick="openCameraModal('studentPhoto')" class="w-24 h-32 px-2 bg-gray-100 border border-gray-300 rounded-xl hover:bg-gray-200 flex flex-col items-center justify-center text-gray-600 transition-colors">
+                                    <i class="fa-solid fa-camera text-2xl mb-1"></i>
+                                    <span class="text-xs font-medium text-center">Cámara</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 flex justify-end">
+                        <button type="button" onclick="nextStep()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-transform transform hover:-translate-y-1 flex items-center">
+                            Siguiente Paso <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Tutor Information -->
+                <div id="step2-container" class="space-y-6 hidden transition-opacity duration-500 opacity-0">
+                    <h2 class="text-xl font-bold text-gray-800 border-b pb-2"><i class="fa-solid fa-user-shield text-brand-500 mr-2"></i>Información del Tutor</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre(s) *</label>
+                            <input type="text" name="tutorFirstName" id="tutorFirstName"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500" placeholder="Ej. María">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Apellidos *</label>
+                            <input type="text" name="tutorLastName" id="tutorLastName"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500" placeholder="Ej. Gómez">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Correo Electrónico *</label>
+                            <input type="email" name="tutorEmail" id="tutorEmail"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500" placeholder="correo@ejemplo.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Fotografía (Para validación QR)</label>
+                            <div class="flex gap-2">
+                                <label id="tutorPhotoLabel" class="flex-grow flex flex-col items-center justify-center h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 overflow-hidden relative">
+                                    <div id="tutorPhotoPlaceholder" class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
+                                        <p class="text-sm text-gray-500 font-medium">Subir foto</p>
+                                    </div>
+                                    <img id="tutorPhotoPreview" class="hidden absolute inset-0 w-full h-full object-cover" />
+                                    <input type="file" name="tutorPhoto" id="tutorPhoto" class="hidden" accept="image/*" onchange="previewImage(this, 'tutorPhotoPreview', 'tutorPhotoPlaceholder')" />
+                                </label>
+                                <button type="button" onclick="openCameraModal('tutorPhoto')" class="w-24 h-32 px-2 bg-gray-100 border border-gray-300 rounded-xl hover:bg-gray-200 flex flex-col items-center justify-center text-gray-600 transition-colors">
+                                    <i class="fa-solid fa-camera text-2xl mb-1"></i>
+                                    <span class="text-xs font-medium text-center">Cámara</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 flex justify-between">
+                        <button type="button" onclick="prevStep()" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold py-3 px-8 rounded-xl shadow-sm transition-colors flex items-center">
+                            <i class="fa-solid fa-arrow-left mr-2"></i> Volver
+                        </button>
+                        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-transform transform hover:-translate-y-1 flex items-center">
+                            <i class="fa-solid fa-check mr-2"></i> Finalizar Registro
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <!-- Modal for Camera -->
+    <div id="cameraModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-4 max-w-lg w-full">
+            <h3 class="text-xl font-bold mb-4 flex items-center"><i class="fa-solid fa-camera mr-2"></i>Tomar Foto</h3>
+            <div class="relative bg-black rounded-xl overflow-hidden aspect-video mb-4">
+                <video id="cameraVideo" class="w-full h-full object-cover" autoplay playsinline></video>
+            </div>
+            <div class="flex justify-between items-center">
+                <button type="button" onclick="closeCameraModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-xl font-medium transition-colors">Cancelar</button>
+                <button type="button" onclick="capturePhoto()" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-xl font-bold flex items-center shadow-md transition-colors">
+                    <i class="fa-solid fa-camera mr-2"></i> Capturar
+                </button>
+            </div>
+        </div>
+    </div>
+    <canvas id="cameraCanvas" class="hidden"></canvas>
+
+    <script>
+        let currentPhotoInputId = null;
+        let stream = null;
+
+        function previewImage(input, previewId, placeholderId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById(previewId);
+                    const placeholder = document.getElementById(placeholderId);
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function openCameraModal(inputId) {
+            currentPhotoInputId = inputId;
+            const modal = document.getElementById('cameraModal');
+            const video = document.getElementById('cameraVideo');
+            modal.classList.remove('hidden');
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("Error accessing camera:", err);
+                alert("No se pudo acceder a la cámara. Por favor, revisa los permisos.");
+                closeCameraModal();
+            }
+        }
+
+        function closeCameraModal() {
+            const modal = document.getElementById('cameraModal');
+            const video = document.getElementById('cameraVideo');
+            modal.classList.add('hidden');
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            video.srcObject = null;
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.getElementById('cameraCanvas');
+            const context = canvas.getContext('2d');
+            
+            if (video.videoWidth === 0 || video.videoHeight === 0) {
+                alert("La cámara aún no está lista.");
+                return;
+            }
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            canvas.toBlob((blob) => {
+                const file = new File([blob], "captura.jpg", { type: "image/jpeg" });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                
+                const input = document.getElementById(currentPhotoInputId);
+                input.files = dataTransfer.files;
+                
+                const previewId = currentPhotoInputId + 'Preview';
+                const placeholderId = currentPhotoInputId + 'Placeholder';
+                previewImage(input, previewId, placeholderId);
+                
+                closeCameraModal();
+            }, "image/jpeg", 0.9);
+        }
+
+        function nextStep() {
+            // Basic validation for step 1
+            const studentFirstName = document.querySelector('input[name="studentFirstName"]').value;
+            const studentLastName = document.querySelector('input[name="studentLastName"]').value;
+            
+            if(!studentFirstName || !studentLastName) {
+                alert("Por favor, completa los campos obligatorios del alumno.");
+                return;
+            }
+
+            // Hide Step 1
+            const step1 = document.getElementById('step1-container');
+            const step2 = document.getElementById('step2-container');
+            
+            step1.classList.add('opacity-0');
+            setTimeout(() => {
+                step1.classList.add('hidden');
+                step2.classList.remove('hidden');
+                // Trigger reflow
+                void step2.offsetWidth;
+                step2.classList.remove('opacity-0');
+            }, 300);
+
+            // Update UI indicators
+            document.getElementById('progress-line').style.width = '100%';
+            
+            const circle2 = document.getElementById('step2-circle');
+            circle2.classList.remove('bg-gray-300', 'text-gray-600');
+            circle2.classList.add('bg-brand-600', 'text-white');
+            
+            const text2 = document.getElementById('step2-text');
+            text2.classList.remove('text-gray-500');
+            text2.classList.add('text-brand-700', 'font-semibold');
+
+            // Set required fields for step 2
+            document.getElementById('tutorFirstName').required = true;
+            document.getElementById('tutorLastName').required = true;
+            document.getElementById('tutorEmail').required = true;
+        }
+
+        function prevStep() {
+            const step1 = document.getElementById('step1-container');
+            const step2 = document.getElementById('step2-container');
+            
+            step2.classList.add('opacity-0');
+            setTimeout(() => {
+                step2.classList.add('hidden');
+                step1.classList.remove('hidden');
+                // Trigger reflow
+                void step1.offsetWidth;
+                step1.classList.remove('opacity-0');
+            }, 300);
+
+            // Update UI indicators
+            document.getElementById('progress-line').style.width = '50%';
+            
+            const circle2 = document.getElementById('step2-circle');
+            circle2.classList.add('bg-gray-300', 'text-gray-600');
+            circle2.classList.remove('bg-brand-600', 'text-white');
+            
+            const text2 = document.getElementById('step2-text');
+            text2.classList.add('text-gray-500');
+            text2.classList.remove('text-brand-700', 'font-semibold');
+
+            // Remove required fields for step 2
+            document.getElementById('tutorFirstName').required = false;
+            document.getElementById('tutorLastName').required = false;
+            document.getElementById('tutorEmail').required = false;
+        }
+    </script>
+</body>
+</html>

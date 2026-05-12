@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Agregar Tutor - Control Escolar')}"></head>
+<body class="bg-gray-50 min-h-screen text-gray-800 font-sans antialiased">
+    
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        
+        <div class="mb-8">
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Agregar Nuevo Tutor</h1>
+            <p class="mt-2 text-lg text-gray-600">Registra un tutor adicional para <span class="font-bold text-brand-600" th:text="${student.firstName + ' ' + student.lastName}"></span>.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <form th:action="@{/students/{id}/tutors/add(id=${student.id})}" method="post" enctype="multipart/form-data" class="p-8">
+                
+                <div class="space-y-6">
+                    <h2 class="text-xl font-bold text-gray-800 border-b pb-2"><i class="fa-solid fa-user-shield text-brand-500 mr-2"></i>Información del Tutor</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre(s) *</label>
+                            <input type="text" name="tutorFirstName" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500" placeholder="Ej. María">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Apellidos *</label>
+                            <input type="text" name="tutorLastName" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500" placeholder="Ej. Gómez">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Correo Electrónico *</label>
+                            <input type="email" name="tutorEmail" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500" placeholder="correo@ejemplo.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Fotografía (Para validación QR)</label>
+                            <div class="flex items-center justify-center w-full">
+                                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <i class="fa-solid fa-camera text-3xl text-gray-400 mb-2"></i>
+                                        <p class="text-sm text-gray-500 font-medium">Subir foto del tutor</p>
+                                    </div>
+                                    <input type="file" name="tutorPhoto" class="hidden" accept="image/*" />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 flex justify-between">
+                        <a th:href="@{/students}" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold py-3 px-8 rounded-xl shadow-sm transition-colors flex items-center">
+                            <i class="fa-solid fa-arrow-left mr-2"></i> Cancelar
+                        </a>
+                        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-transform transform hover:-translate-y-1 flex items-center">
+                            <i class="fa-solid fa-check mr-2"></i> Registrar Tutor
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>
