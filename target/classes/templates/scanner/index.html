@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${title})}"></head>
+<body class="bg-gray-50 min-h-screen">
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Escáner de Entradas y Salidas</h1>
+            <p class="text-gray-600 mt-2">Acerque la credencial del tutor a la cámara para registrar el movimiento de sus alumnos asociados.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Left Side: Camera Scanner -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+                <div class="bg-gray-50 border-b border-gray-100 px-6 py-4 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-800"><i class="fa-solid fa-camera mr-2 text-brand-600"></i> Lector QR</h2>
+                </div>
+                <div class="p-6 flex flex-col items-center">
+                    <div id="reader" width="100%" class="w-full max-w-md rounded-lg overflow-hidden border-4 border-gray-100"></div>
+                </div>
+            </div>
+
+            <!-- Right Side: Scan Results -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 flex flex-col">
+                <div class="bg-gray-50 border-b border-gray-100 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-gray-800"><i class="fa-solid fa-clipboard-user mr-2 text-brand-600"></i> Resultado del Escaneo</h2>
+                </div>
+                
+                <div id="idle-state" class="p-6 flex-1 flex flex-col items-center justify-center text-gray-400">
+                    <i class="fa-solid fa-qrcode text-6xl mb-4 text-gray-300"></i>
+                    <p class="text-lg">Esperando escaneo...</p>
+                </div>
+
+                <div id="result-state" class="p-6 flex-1 hidden flex-col">
+                    <!-- Tutor Info -->
+                    <div class="flex items-center space-x-6 border-b border-gray-100 pb-6 mb-6">
+                        <img id="tutor-photo" src="" alt="Tutor" class="w-24 h-24 rounded-lg object-cover shadow-sm border-2 border-brand-500 hidden">
+                        <div id="tutor-placeholder" class="w-24 h-24 rounded-lg bg-gray-100 flex items-center justify-center border-2 border-gray-200">
+                            <i class="fa-solid fa-user text-3xl text-gray-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 uppercase tracking-wider font-semibold">Tutor</p>
+                            <h3 id="tutor-name" class="text-2xl font-bold text-gray-800">Nombre Tutor</h3>
+                        </div>
+                    </div>
+
+                    <!-- Students Info -->
+                    <div>
+                        <p class="text-sm text-gray-500 uppercase tracking-wider font-semibold mb-4">Alumnos Asociados</p>
+                        <div id="students-container" class="grid grid-cols-2 gap-4">
+                            <!-- Students will be injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="mt-auto pt-8">
+                        <input type="hidden" id="scan-tutor-id">
+                        <input type="hidden" id="scan-action-type">
+                        
+                        <button id="btn-action" onclick="registerLog()" class="w-full py-4 rounded-xl text-white font-bold text-xl shadow-lg transition duration-200 flex items-center justify-center">
+                            <i id="btn-icon" class="fa-solid fa-sign-in-alt mr-3"></i>
+                            <span id="btn-text">Registrar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script>
+        let html5QrcodeScanner = null;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                { fps: 10, qrbox: {width: 250, height: 250} },
+                /* verbose= */ false);
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        });
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // Pause scanner to prevent multiple scans
+            html5QrcodeScanner.pause();
+
+            // Decode URL (e.g. http://domain/credentials/verify/5)
+            // Extract the ID from the end of the URL
+            const parts = decodedText.split('/verify/');
+            if (parts.length > 1) {
+                const tutorId = parts[1];
+                fetchTutorData(tutorId);
+            } else {
+                Swal.fire('Error', 'Código QR no válido', 'error').then(() => {
+                    html5QrcodeScanner.resume();
+                });
+            }
+        }
+
+        function onScanFailure(error) {
+            // handle scan failure, usually better to ignore and keep scanning
+        }
+
+        function fetchTutorData(tutorId) {
+            fetch(`/api/scanner/tutor/${tutorId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Tutor no encontrado");
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('idle-state').classList.add('hidden');
+                    document.getElementById('result-state').classList.remove('hidden');
+                    document.getElementById('result-state').classList.add('flex');
+
+                    // Set Tutor Info
+                    document.getElementById('tutor-name').innerText = data.tutorName;
+                    if (data.tutorPhotoBase64) {
+                        document.getElementById('tutor-photo').src = "data:image/jpeg;base64," + data.tutorPhotoBase64;
+                        document.getElementById('tutor-photo').classList.remove('hidden');
+                        document.getElementById('tutor-placeholder').classList.add('hidden');
+                    } else {
+                        document.getElementById('tutor-photo').classList.add('hidden');
+                        document.getElementById('tutor-placeholder').classList.remove('hidden');
+                    }
+
+                    // Set Students Info
+                    const container = document.getElementById('students-container');
+                    container.innerHTML = '';
+                    data.students.forEach(student => {
+                        let photoHtml = student.studentPhotoBase64 
+                            ? `<img src="data:image/jpeg;base64,${student.studentPhotoBase64}" class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md mx-auto mb-2">`
+                            : `<div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-2 border-2 border-white shadow-md"><i class="fa-solid fa-child text-gray-400 text-2xl"></i></div>`;
+                        
+                        let html = `
+                            <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
+                                ${photoHtml}
+                                <p class="text-sm font-semibold text-gray-800">${student.studentName}</p>
+                            </div>
+                        `;
+                        container.innerHTML += html;
+                    });
+
+                    // Set Button State
+                    document.getElementById('scan-tutor-id').value = data.tutorId;
+                    document.getElementById('scan-action-type').value = data.nextAction;
+
+                    const btn = document.getElementById('btn-action');
+                    const btnIcon = document.getElementById('btn-icon');
+                    const btnText = document.getElementById('btn-text');
+
+                    // Reset classes
+                    btn.className = "w-full py-4 rounded-xl text-white font-bold text-xl shadow-lg transition duration-200 flex items-center justify-center";
+                    
+                    if (data.nextAction === 'ENTRY') {
+                        btn.classList.add('bg-green-500', 'hover:bg-green-600');
+                        btnIcon.className = "fa-solid fa-sign-in-alt mr-3";
+                        btnText.innerText = "Registrar ENTRADA del día";
+                    } else {
+                        btn.classList.add('bg-orange-500', 'hover:bg-orange-600');
+                        btnIcon.className = "fa-solid fa-sign-out-alt mr-3";
+                        btnText.innerText = "Registrar SALIDA del día";
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', error.message, 'error').then(() => {
+                        html5QrcodeScanner.resume();
+                    });
+                });
+        }
+
+        function registerLog() {
+            const tutorId = document.getElementById('scan-tutor-id').value;
+            const actionType = document.getElementById('scan-action-type').value;
+
+            fetch('/api/scanner/log', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tutorId: tutorId, actionType: actionType })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Confetti effect
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+
+                    Swal.fire({
+                        title: '¡Registrado!',
+                        text: data.message,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Reset UI
+                        document.getElementById('result-state').classList.add('hidden');
+                        document.getElementById('result-state').classList.remove('flex');
+                        document.getElementById('idle-state').classList.remove('hidden');
+                        
+                        // Resume scanner
+                        html5QrcodeScanner.resume();
+                    });
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error', 'Ocurrió un error al guardar el registro.', 'error');
+            });
+        }
+    </script>
+</body>
+</html>
