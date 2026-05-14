@@ -2,6 +2,8 @@ package com.escuela.abc_Escuelita.controller;
 
 import com.escuela.abc_Escuelita.model.Student;
 import com.escuela.abc_Escuelita.model.Tutor;
+import com.escuela.abc_Escuelita.model.StudentGroup;
+import com.escuela.abc_Escuelita.repository.StudentGroupRepository;
 import com.escuela.abc_Escuelita.repository.StudentRepository;
 import com.escuela.abc_Escuelita.repository.TutorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class StudentController {
 
     @Autowired
     private com.escuela.abc_Escuelita.repository.InstitutionRepository institutionRepository;
+
+    @Autowired
+    private StudentGroupRepository studentGroupRepository;
 
     @jakarta.annotation.PostConstruct
     public void init() {
@@ -59,14 +64,17 @@ public class StudentController {
     }
 
     @GetMapping("/register")
-    public String registerStudent() {
+    public String registerStudent(Model model) {
+        Long institutionId = 1L; // Hardcoded para la demostración
+        List<StudentGroup> groups = studentGroupRepository.findByInstitutionId(institutionId);
+        model.addAttribute("groups", groups);
         return "students/register";
     }
 
     @PostMapping("/register")
     public String processRegistration(@RequestParam String studentFirstName,
                                       @RequestParam String studentLastName,
-                                      @RequestParam(required = false) String studentGroup,
+                                      @RequestParam(required = false) Long studentGroupId,
                                       @RequestParam(value = "studentPhoto", required = false) org.springframework.web.multipart.MultipartFile studentPhoto,
                                       @RequestParam String tutorFirstName,
                                       @RequestParam String tutorLastName,
@@ -77,7 +85,11 @@ public class StudentController {
         Student student = new Student();
         student.setFirstName(studentFirstName);
         student.setLastName(studentLastName);
-        student.setGroupName(studentGroup);
+        
+        if (studentGroupId != null) {
+            StudentGroup group = studentGroupRepository.findById(studentGroupId).orElse(null);
+            student.setStudentGroup(group);
+        }
         
         try {
             if (studentPhoto != null && !studentPhoto.isEmpty()) {
@@ -128,18 +140,26 @@ public class StudentController {
         if (student == null) {
             return "redirect:/students";
         }
+        Long institutionId = 1L; // Hardcoded para la demostración
+        List<StudentGroup> groups = studentGroupRepository.findByInstitutionId(institutionId);
+        model.addAttribute("groups", groups);
         model.addAttribute("student", student);
         return "students/edit";
     }
 
     @PostMapping("/edit/{id}")
     public String updateStudent(@PathVariable Long id, @RequestParam String studentFirstName, 
-                                @RequestParam String studentLastName, @RequestParam String studentGroup) {
+                                @RequestParam String studentLastName, @RequestParam(required = false) Long studentGroupId) {
         Student student = studentRepository.findById(id).orElse(null);
         if (student != null) {
             student.setFirstName(studentFirstName);
             student.setLastName(studentLastName);
-            student.setGroupName(studentGroup);
+            if (studentGroupId != null) {
+                StudentGroup group = studentGroupRepository.findById(studentGroupId).orElse(null);
+                student.setStudentGroup(group);
+            } else {
+                student.setStudentGroup(null);
+            }
             studentRepository.save(student);
         }
         return "redirect:/students";

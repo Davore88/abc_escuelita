@@ -28,6 +28,9 @@ public class Institution {
     @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL)
     private List<Announcement> announcements;
 
+    @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL)
+    private List<StudentGroup> groups;
+
     // Constructors, Getters, and Setters
 
     public Institution() {}
@@ -46,4 +49,6 @@ public class Institution {
     public void setAccessLogs(List<AccessLog> accessLogs) { this.accessLogs = accessLogs; }
     public List<Announcement> getAnnouncements() { return announcements; }
     public void setAnnouncements(List<Announcement> announcements) { this.announcements = announcements; }
+    public List<StudentGroup> getGroups() { return groups; }
+    public void setGroups(List<StudentGroup> groups) { this.groups = groups; }
 }

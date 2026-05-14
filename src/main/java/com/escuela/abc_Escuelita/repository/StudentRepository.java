@@ -8,12 +8,12 @@ import java.util.List;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
     List<Student> findByInstitutionId(Long institutionId);
-    List<Student> findByGroupNameAndInstitutionId(String groupName, Long institutionId);
+    List<Student> findByStudentGroupNameAndInstitutionId(String groupName, Long institutionId);
 
     @org.springframework.data.jpa.repository.Query("SELECT s FROM Student s WHERE " +
            "(LOWER(s.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(s.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(s.groupName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND " +
+           "LOWER(s.studentGroup.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND " +
            "s.institution.id = :institutionId")
     List<Student> searchStudents(@org.springframework.data.repository.query.Param("searchTerm") String searchTerm, @org.springframework.data.repository.query.Param("institutionId") Long institutionId);
 }

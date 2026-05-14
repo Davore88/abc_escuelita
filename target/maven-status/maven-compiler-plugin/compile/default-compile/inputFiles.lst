@@ -4,6 +4,7 @@ C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\mo
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\repository\InstitutionRepository.java
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\config\CustomUserDetailsService.java
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\controller\InstitutionController.java
+C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\controller\StudentGroupController.java
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\model\Institution.java
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\model\AccessLog.java
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\model\Credential.java
@@ -20,8 +21,10 @@ C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\co
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\repository\StudentRepository.java
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\config\DataSeeder.java
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\controller\StudentController.java
+C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\repository\StudentGroupRepository.java
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\controller\ReportController.java
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\model\Announcement.java
+C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\model\StudentGroup.java
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\controller\ScannerApiController.java
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\repository\AnnouncementRepository.java
 C:\Users\Tata\Documents\abc_Escuelita\src\main\java\com\escuela\abc_Escuelita\repository\TutorRepository.java

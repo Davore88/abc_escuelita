@@ -1,0 +1,12 @@
+package com.escuela.abc_Escuelita.repository;
+
+import com.escuela.abc_Escuelita.model.StudentGroup;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface StudentGroupRepository extends JpaRepository<StudentGroup, Long> {
+    List<StudentGroup> findByInstitutionId(Long institutionId);
+}

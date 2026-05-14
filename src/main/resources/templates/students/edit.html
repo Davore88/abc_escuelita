@@ -30,9 +30,13 @@
                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500" placeholder="Ej. López Gómez">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Grupo asignado</label>
-                            <input type="text" name="studentGroup" th:value="${student.groupName}"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500" placeholder="Ej. 1A">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Grupo asignado</label>
+                                <select name="studentGroupId" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-brand-500 focus:border-brand-500 bg-white">
+                                    <option value="">Seleccione un grupo...</option>
+                                    <option th:each="group : ${groups}" th:value="${group.id}" th:text="${group.name}" th:selected="${student.studentGroup != null and student.studentGroup.id == group.id}"></option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 

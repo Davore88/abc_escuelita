@@ -1,4 +1,5 @@
 com\escuela\abc_Escuelita\model\Institution.class
+com\escuela\abc_Escuelita\controller\StudentGroupController.class
 com\escuela\abc_Escuelita\model\AccessLog.class
 com\escuela\abc_Escuelita\controller\InstitutionController.class
 com\escuela\abc_Escuelita\repository\InstitutionRepository.class
@@ -9,6 +10,7 @@ com\escuela\abc_Escuelita\config\DataSeeder.class
 com\escuela\abc_Escuelita\repository\CredentialRepository.class
 com\escuela\abc_Escuelita\repository\AccessLogRepository.class
 com\escuela\abc_Escuelita\repository\TutorRepository.class
+com\escuela\abc_Escuelita\model\StudentGroup.class
 com\escuela\abc_Escuelita\controller\StudentController.class
 com\escuela\abc_Escuelita\config\SecurityConfig.class
 com\escuela\abc_Escuelita\controller\AuthController.class
@@ -20,6 +22,7 @@ com\escuela\abc_Escuelita\controller\ImageController.class
 com\escuela\abc_Escuelita\model\Tutor.class
 com\escuela\abc_Escuelita\controller\ReportController.class
 com\escuela\abc_Escuelita\repository\AdminUserRepository.class
+com\escuela\abc_Escuelita\repository\StudentGroupRepository.class
 com\escuela\abc_Escuelita\model\Announcement.class
 com\escuela\abc_Escuelita\repository\AnnouncementRepository.class
 com\escuela\abc_Escuelita\repository\StudentRepository.class
