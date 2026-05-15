@@ -105,4 +105,22 @@ public class ScannerApiController {
         result.put("message", "Registro guardado correctamente.");
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/recent-logs")
+    public ResponseEntity<?> getRecentLogs() {
+        Long institutionId = 1L; // Hardcoded para la demostración
+        List<AccessLog> recentLogs = accessLogRepository.findTop20ByInstitutionIdOrderByTimestampDesc(institutionId);
+        
+        List<Map<String, Object>> response = new ArrayList<>();
+        for(AccessLog log : recentLogs) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("studentName", log.getStudent().getFirstName() + " " + log.getStudent().getLastName());
+            map.put("tutorName", log.getTutor().getFirstName() + " " + log.getTutor().getLastName());
+            map.put("accessType", log.getAccessType());
+            map.put("date", log.getTimestamp().toLocalDate().toString());
+            map.put("time", log.getTimestamp().toLocalTime().toString());
+            response.add(map);
+        }
+        return ResponseEntity.ok(response);
+    }
 }

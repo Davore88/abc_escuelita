@@ -69,23 +69,101 @@
 
         </div>
 
+        <!-- Recent Logs Section -->
+        <div class="mt-8 bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+            <div class="bg-gray-50 border-b border-gray-100 px-6 py-4 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-800"><i class="fa-solid fa-clock-rotate-left mr-2 text-brand-600"></i> Últimos Registros (Entradas y Salidas)</h2>
+                <button onclick="loadRecentLogs()" class="text-brand-600 hover:text-brand-800 transition-colors" title="Actualizar Registros">
+                    <i class="fa-solid fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="p-0 overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="px-6 py-4">Alumno</th>
+                            <th class="px-6 py-4">Tutor</th>
+                            <th class="px-6 py-4 text-center">Tipo</th>
+                            <th class="px-6 py-4 text-right">Fecha y Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-logs-tbody">
+                        <tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">Cargando registros...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </main>
 
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
-        let html5QrcodeScanner = null;
+        let html5QrCode = null;
 
         document.addEventListener("DOMContentLoaded", function() {
-            html5QrcodeScanner = new Html5QrcodeScanner(
-                "reader",
-                { fps: 10, qrbox: {width: 250, height: 250} },
-                /* verbose= */ false);
-            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            html5QrCode = new Html5Qrcode("reader");
+            
+            html5QrCode.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                onScanSuccess,
+                onScanFailure
+            ).catch(err => {
+                console.error("Error al iniciar la cámara", err);
+                Swal.fire('Error', 'No se pudo acceder a la cámara. Por favor, conceda los permisos en su navegador.', 'error');
+            });
+
+            // Cargar últimos registros
+            loadRecentLogs();
         });
+
+        function loadRecentLogs() {
+            fetch('/api/scanner/recent-logs')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('recent-logs-tbody');
+                    tbody.innerHTML = '';
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">No hay registros recientes</td></tr>';
+                        return;
+                    }
+                    data.forEach(log => {
+                        const typeHtml = log.accessType === 'ENTRY' 
+                            ? '<span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full"><i class="fa-solid fa-arrow-right-to-bracket mr-1"></i> Entrada</span>'
+                            : '<span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded-full"><i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Salida</span>';
+                        
+                        // Parse local date from parts or standard strings.
+                        const dateParts = log.date.split('-');
+                        const timeParts = log.time.split(':');
+                        const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0], timeParts[1]);
+                        
+                        const formattedDateTime = dateObj.toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+                        tbody.innerHTML += `
+                            <tr class="border-b hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 font-medium text-gray-900">${log.studentName}</td>
+                                <td class="px-6 py-4">${log.tutorName}</td>
+                                <td class="px-6 py-4 text-center">${typeHtml}</td>
+                                <td class="px-6 py-4 text-right text-gray-600">${formattedDateTime}</td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(err => {
+                    console.error("Error cargando registros:", err);
+                    const tbody = document.getElementById('recent-logs-tbody');
+                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-red-400">Error al cargar registros</td></tr>';
+                });
+        }
 
         function onScanSuccess(decodedText, decodedResult) {
             // Pause scanner to prevent multiple scans
-            html5QrcodeScanner.pause();
+            if (html5QrCode.getState() === 2) { // 2 = SCANNING state
+                html5QrCode.pause();
+            }
 
             // Decode URL (e.g. http://domain/credentials/verify/5)
             // Extract the ID from the end of the URL
@@ -95,7 +173,9 @@
                 fetchTutorData(tutorId);
             } else {
                 Swal.fire('Error', 'Código QR no válido', 'error').then(() => {
-                    html5QrcodeScanner.resume();
+                    if (html5QrCode.getState() === 3) { // 3 = PAUSED state
+                        html5QrCode.resume();
+                    }
                 });
             }
         }
@@ -166,7 +246,9 @@
                 })
                 .catch(error => {
                     Swal.fire('Error', error.message, 'error').then(() => {
-                        html5QrcodeScanner.resume();
+                        if (html5QrCode && html5QrCode.getState() === 3) {
+                            html5QrCode.resume();
+                        }
                     });
                 });
         }
@@ -205,7 +287,12 @@
                         document.getElementById('idle-state').classList.remove('hidden');
                         
                         // Resume scanner
-                        html5QrcodeScanner.resume();
+                        if (html5QrCode && html5QrCode.getState() === 3) {
+                            html5QrCode.resume();
+                        }
+                        
+                        // Update recent logs
+                        loadRecentLogs();
                     });
                 } else {
                     Swal.fire('Error', data.message, 'error');

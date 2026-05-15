@@ -13,4 +13,5 @@ public interface AccessLogRepository extends JpaRepository<AccessLog, Long> {
     List<AccessLog> findByInstitutionIdAndStudentId(Long institutionId, Long studentId);
     AccessLog findFirstByStudentIdAndTimestampBetweenOrderByTimestampDesc(Long studentId, LocalDateTime start, LocalDateTime end);
     List<AccessLog> findByStudentIdAndTimestampBetweenOrderByTimestampAsc(Long studentId, LocalDateTime start, LocalDateTime end);
+    List<AccessLog> findTop20ByInstitutionIdOrderByTimestampDesc(Long institutionId);
 }

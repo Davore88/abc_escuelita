@@ -176,8 +176,40 @@ public class StudentController {
     }
 
     @PostMapping("/{id}/tutors/add")
-    public String saveTutor(@PathVariable Long id) {
-        // Here you would save the tutor and link to the student
+    public String saveTutor(@PathVariable Long id,
+                            @RequestParam String tutorFirstName,
+                            @RequestParam String tutorLastName,
+                            @RequestParam String tutorEmail,
+                            @RequestParam(value = "tutorPhoto", required = false) org.springframework.web.multipart.MultipartFile tutorPhoto,
+                            RedirectAttributes redirectAttributes) {
+        Student student = studentRepository.findById(id).orElse(null);
+        if (student == null) {
+            return "redirect:/students";
+        }
+
+        Tutor tutor = new Tutor();
+        tutor.setFirstName(tutorFirstName);
+        tutor.setLastName(tutorLastName);
+        tutor.setEmail(tutorEmail);
+
+        try {
+            if (tutorPhoto != null && !tutorPhoto.isEmpty()) {
+                tutor.setPhotoData(tutorPhoto.getBytes());
+            }
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+
+        tutor = tutorRepository.save(tutor);
+
+        if (student.getTutors() == null) {
+            student.setTutors(new ArrayList<>());
+        }
+        student.getTutors().add(tutor);
+        studentRepository.save(student);
+
+        redirectAttributes.addFlashAttribute("registroExitoso", true);
+        redirectAttributes.addFlashAttribute("newTutorId", tutor.getId());
         return "redirect:/students";
     }
 }
